@@ -40,9 +40,11 @@ class Amino( object):
 
 	def mutate( self ):
 		""" Mutate on property """
-		# TODO: make little variance more likely
-		for i in range(0,4):
-			self.base[randint( 0, len( self.base )-1 )] = random()
+		# TODO: make small variance more likely
+		for i in range(0,1):
+			which = randint( 0, len( self.base )-1 )
+			#print "MUTATING:", which+1, "of", len( self.base )
+			self.base[which] = random()
 
 	def render( self, surface ):
 		r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy = self.base
@@ -64,7 +66,7 @@ class DNA( object ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
-		for i in xrange( 0, len( self.genome )/8 ):
+		for i in xrange( 0, len( self.genome )/20 ):
 			self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
 
 	def mate( self, mother, father ):
@@ -188,7 +190,7 @@ def main():
 	Imagesh.target( tmp, goddess )
 
 	# Play god, create population
-	populationsize = 20
+	populationsize = 10
 	population = []
 	for i in xrange( 0, populationsize ):
 		population.append( Imagesh() )
