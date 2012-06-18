@@ -12,7 +12,7 @@ License: [GNU General Public License v3][2]
 TODO
 --------
 
-Lots. Currently: favor small changes by using a [Beta distribution][3] [in NumPy][4]for random mutations.
+Lots. Work in progress. Currently: favor small changes by using a [Beta distribution][3] [in NumPy][4] for random mutations.
 
   [1]: http://rogeralsing.com/2008/12/07/genetic-programming-evolution-of-mona-lisa/
   [2]: http://www.gnu.org/licenses/gpl.html
