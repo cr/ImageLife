@@ -60,7 +60,7 @@ class DNA( object ):
 			self.genome = deepcopy( genome )
 		else:
 			self.genome = []
-			for gene in xrange( 200 ):
+			for gene in xrange( 50 ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
@@ -188,8 +188,9 @@ def main():
 	Imagesh.target( tmp, goddess )
 
 	# Play god, create population
+	populationsize = 20
 	population = []
-	for i in xrange( 100 ):
+	for i in xrange( 0, populationsize ):
 		population.append( Imagesh() )
 	# Impose hierarchy for mating
 	population.sort( key = lambda x: x.fitness() )
@@ -199,26 +200,19 @@ def main():
 	generation = 0
 	while not done:
 		generation += 1
-		# The fittest will procreate
-		#population.append( Imagesh( population[0], population[10] ) )
-		#population.append( Imagesh( population[1], population[11] ) )
-		#population.append( Imagesh( population[2], population[12] ) )
-		#population.append( Imagesh( population[3], population[13] ) )
-		#population.append( Imagesh( population[4], population[14] ) )
-		#population.append( Imagesh( population[5], population[15] ) )
-		#population.append( Imagesh( population[6], population[16] ) )
-		#population.append( Imagesh( population[7], population[17] ) )
-		#population.append( Imagesh( population[8], population[18] ) )
-		#population.append( Imagesh( population[9], population[19] ) )
-
-		for i in xrange( 0, len(population)/4, 3):
+		# The fittest shall procreate
+		for i in xrange( 0, len( population )/5 ):
 			#Perhaps monogamy is better ofter all?
-			population.append( Imagesh( population[i], population[i+1] ) )
-			population.append( Imagesh( population[i], population[i+2] ) )
+			mother = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
+			father = mother
+			while father == mother:
+				father = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
+			#print "MATING:", mother, father
+			population.append( Imagesh( population[mother], population[father] ) )
 
-		# The least fit must perish
+		# The least fit must perish, keep population size constant
 		population.sort( key = lambda x: x.fitness() )
-		population = population[:30]
+		population = population[:populationsize]
 
 		now = time.time()
 		if now-prev > 0.5:
