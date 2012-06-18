@@ -31,7 +31,7 @@ class Amino( object):
 			r = random()
 			g = random()
 			b = random()
-			a = random()
+			a = random()*0.1
 			self.base = [ r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy ]
 		return
 
@@ -41,9 +41,8 @@ class Amino( object):
 	def mutate( self ):
 		""" Mutate on property """
 		# TODO: make little variance more likely
-		self.base[randint( 0, len( self.base )-1 )] = random()
-		self.base[randint( 0, len( self.base )-1 )] = random()
-		self.base[randint( 0, len( self.base )-1 )] = random()
+		for i in range(0,4):
+			self.base[randint( 0, len( self.base )-1 )] = random()
 
 	def render( self, surface ):
 		r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy = self.base
@@ -65,16 +64,8 @@ class DNA( object ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
-		self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
+		for i in xrange( 0, len( self.genome )/8 ):
+			self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
 
 	def mate( self, mother, father ):
 		crossover = randint( 0, len( self.genome ) - 1 )
@@ -188,7 +179,7 @@ def main():
 	# CAVE: crucial sequence:
 	# pygame must be intialized per Screen() before
     # Imagesh.target() can convert target surface
-	goddess = pygame.image.load( "ersatzspieler200.png" )
+	goddess = pygame.image.load( sys.argv[-1] )
 	screen = Screen( ( goddess.get_width(), goddess.get_height() ) )
 
 	# Dummy instance for calling class methods
