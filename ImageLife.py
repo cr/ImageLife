@@ -31,7 +31,7 @@ class Amino( object):
 			r = random()
 			g = random()
 			b = random()
-			a = random()*0.5
+			a = random()*0.3
 			self.base = [ r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy ]
 		return
 
@@ -41,11 +41,28 @@ class Amino( object):
 	def mutate( self ):
 		""" Mutate on property """
 		# TODO: make small variance more likely
-		for i in xrange( 0, len( self.base ) ):
-			self.base[i] = random()
+		#for i in xrange( 0, len( self.base ) ):
+		#	self.base[i] = random()
 
-		# make alpha preferably small
-		self.base[3] = numpy.random.beta(3, 5)
+		what = randint( 0, 7 )
+		if what  == 0:
+			self.base[0] = random()
+		elif what == 1:
+			self.base[1] = random()
+		elif what == 2:
+			self.base[2] = random()
+		elif what == 3:
+			# make alpha preferably small
+			self.base[3] = numpy.random.beta(3, 5)
+		elif what == 4:
+			self.base[4] = random()
+		elif what == 5:
+			self.base[5:7] = random(), random()
+		elif what == 6:
+			self.base[7:9] = random(), random()
+		elif what == 7:
+			self.base[9:11] = random(), random()
+
 
 	def render( self, surface ):
 		r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy = self.base
@@ -63,11 +80,12 @@ class DNA( object ):
 			self.genome = deepcopy( genome )
 		else:
 			self.genome = []
-			for gene in xrange( 50 ):
+			for gene in xrange( 20 ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
-		for i in xrange( 0, len( self.genome )/20 ):
+		#for i in xrange( 0, len( self.genome )/10 ):
+		for i in xrange( 0, 2 ):
 			self.genome[randint( 0, len( self.genome ) - 1 )].mutate()
 
 	def mate( self, mother, father ):
@@ -191,7 +209,7 @@ def main():
 	Imagesh.target( tmp, goddess )
 
 	# Play god, create population
-	populationsize = 500
+	populationsize = 12
 	population = []
 	for i in xrange( 0, populationsize ):
 		population.append( Imagesh() )
@@ -204,7 +222,7 @@ def main():
 	while not done:
 		generation += 1
 		# The fittest shall procreate
-		for i in xrange( 0, len( population )/3 ):
+		for i in xrange( 0, len( population )/4 ):
 			#Perhaps monogamy is better ofter all?
 			mother = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
 			father = mother
