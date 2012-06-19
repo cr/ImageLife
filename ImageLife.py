@@ -80,7 +80,7 @@ class DNA( object ):
 			self.genome = deepcopy( genome )
 		else:
 			self.genome = []
-			for gene in xrange( 20 ):
+			for gene in xrange( 120 ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
@@ -217,7 +217,8 @@ def main():
 	population.sort( key = lambda x: x.fitness() )
 
 	done = False
-	prev = time.time()
+	start = time.time()
+	prev = start
 	generation = 0
 	while not done:
 		generation += 1
@@ -229,6 +230,7 @@ def main():
 			while father == mother:
 				father = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
 			#print "MATING:", mother, father
+			population.append( Imagesh( population[mother], population[father] ) )
 			population.append( Imagesh( population[mother], population[father] ) )
 
 		# The least fit must perish, keep population size constant
@@ -245,7 +247,7 @@ def main():
 			screen.update()
 			#screen.sync( 60 )
 
-		print generation, now, population[0].fitness(), population[1].fitness(), population[2].fitness(), population[-1].fitness()
+		print generation, now-start, population[0].fitness(), population[1].fitness(), population[2].fitness(), population[-1].fitness()
 		done = population[0].fitness() < 10
 
 if __name__ == "__main__":
