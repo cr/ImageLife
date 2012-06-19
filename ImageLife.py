@@ -31,7 +31,7 @@ class Amino( object):
 			r = random()
 			g = random()
 			b = random()
-			a = random()*0.1
+			a = random()*0.5
 			self.base = [ r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy ]
 		return
 
@@ -41,10 +41,11 @@ class Amino( object):
 	def mutate( self ):
 		""" Mutate on property """
 		# TODO: make small variance more likely
-		for i in range(0,1):
-			which = randint( 0, len( self.base )-1 )
-			#print "MUTATING:", which+1, "of", len( self.base )
-			self.base[which] = random()
+		for i in xrange( 0, len( self.base ) ):
+			self.base[i] = random()
+
+		# make alpha preferably small
+		self.base[3] = numpy.random.beta(3, 5)
 
 	def render( self, surface ):
 		r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy = self.base
@@ -190,7 +191,7 @@ def main():
 	Imagesh.target( tmp, goddess )
 
 	# Play god, create population
-	populationsize = 10
+	populationsize = 500
 	population = []
 	for i in xrange( 0, populationsize ):
 		population.append( Imagesh() )
@@ -203,7 +204,7 @@ def main():
 	while not done:
 		generation += 1
 		# The fittest shall procreate
-		for i in xrange( 0, len( population )/5 ):
+		for i in xrange( 0, len( population )/3 ):
 			#Perhaps monogamy is better ofter all?
 			mother = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
 			father = mother
