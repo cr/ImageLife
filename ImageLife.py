@@ -95,7 +95,7 @@ class Amino( object):
 		#color = pygame.Color( int(255*r), int(255*g), int(255*b), int(255*a) )
 		#color = pygame.Color( int(255*r), int(255*g), int(255*b), 255 )
 		color = pygame.Color(0,0,0,255)
-		color.hsva = int(360*r), int(100*g), int(100*b), int(100*a)
+		color.hsva = (360*r)%360, (100*g)%100, (100*b)%100, (100*a)%100
 		pi = 3.14159265
 		Ax, Ay = Mx + s * cos( 2*pi*Aa ), My + s * sin( 2*pi*Aa )
 		Bx, By = Mx + s * cos( 2*pi*Ba ), My + s * sin( 2*pi*Ba )
