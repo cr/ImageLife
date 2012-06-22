@@ -10,6 +10,7 @@ try:
 	from pygame import gfxdraw
 	from pygame.locals import *
 	import numpy
+	from math import sin, cos
 
 except ImportError, err:
 	print "Error, couldn't load module. %s" % (err)
@@ -24,19 +25,19 @@ class Amino( object):
 		if base:
 			self.base = deepcopy( base )
 		else:
-			Ax, Ay = random(), random()
-			Bx, By = random(), random()
-			Cx, Cy = random(), random()
-			z = random()
 			r = random()
 			g = random()
 			b = random()
 			a = random()*0.3
-			self.base = [ r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy ]
+			z = random()
+			Mx, My = random(), random()	# center coordinates
+			Aa, Ab, Ac = random(), random(), random() # corner angles
+			s = random()*0.1 # scale
+			self.base = [ r, g, b, a, z, Mx, My, Aa, Ab, Ac, s ]
 		return
 
 	def depth( self ):
-		return self.base[4]
+		return self.base[10]
 
 	def mutate( self ):
 		""" Mutate on property """
@@ -44,33 +45,45 @@ class Amino( object):
 		#for i in xrange( 0, len( self.base ) ):
 		#	self.base[i] = random()
 
-		what = randint( 0, 7 )
-		if what  == 0:
+		what = randint( 0, 10 )
+		if what  == 0:	# mutate red
 			self.base[0] = random()
-		elif what == 1:
+		elif what == 1:	# mutate green
 			self.base[1] = random()
-		elif what == 2:
+		elif what == 2:	# mutate blue
 			self.base[2] = random()
-		elif what == 3:
+		elif what == 3:	# mutate transparency
 			# make alpha preferably small
-			self.base[3] = numpy.random.beta(3, 5)
-		elif what == 4:
+			self.base[3] = numpy.random.beta(5, 3)
+		elif what == 4:	# mutate depth in plane
 			self.base[4] = random()
-		elif what == 5:
+		elif what == 5:	# mutate center point
 			self.base[5:7] = random(), random()
-		elif what == 6:
-			self.base[7:9] = random(), random()
-		elif what == 7:
-			self.base[9:11] = random(), random()
+		elif what == 6:	# mutate corner A
+			self.base[7] = random()
+		elif what == 7:	# mutate corner B
+			self.base[8] = random()
+		elif what == 8:	# mutate corner C
+			self.base[9] = random()
+		elif what == 9:	# mutate size
+			self.base[10] = numpy.random.beta(5, 3)
+		elif what == 10:	# mutate rotation
+			x = random()
+			self.base[7] += x
+			self.base[8] += x
+			self.base[9] += x
 
 
 	def render( self, surface ):
-		r, g, b, a, z, Ax, Ay, Bx, By, Cx, Cy = self.base
-		r, g, b, a = int(256*r), int(256*g), int(256*b), int(256*a)
+		r, g, b, a, z, Mx, My, Aa, Ba, Ca, s = self.base
+		color = pygame.Color( int(256*r), int(256*g), int(256*b), int(256*a) )
+		pi = 3.14159265
+		Ax, Ay = Mx + s * cos( 2*pi*Aa ), My + s * sin( 2*pi*Aa )
+		Bx, By = Mx + s * cos( 2*pi*Ba ), My + s * sin( 2*pi*Ba )
+		Cx, Cy = Mx + s * cos( 2*pi*Ca ), My + s * sin( 2*pi*Ca )
 		w, h = surface.get_size()
 		Ax, Ay, Bx, By, Cx, Cy = int(Ax*w), int(Ay*h), int(Bx*w), int(By*h), int(Cx*w), int(Cy*h)
-		pygame.gfxdraw.filled_trigon( surface, Ax, Ay, Bx, By, Cx, Cy, pygame.Color(r,g,b,a) )
-
+		pygame.gfxdraw.filled_trigon( surface, Ax, Ay, Bx, By, Cx, Cy, color )
 
 class DNA( object ):
 	"""Class reppresenting a DNA string, consisting of Aminos"""
@@ -80,7 +93,7 @@ class DNA( object ):
 			self.genome = deepcopy( genome )
 		else:
 			self.genome = []
-			for gene in xrange( 120 ):
+			for gene in xrange( 100 ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
@@ -120,7 +133,7 @@ class Imagesh( object ):
 			else:
 				self.dna = DNA()
 			self.surface = pygame.Surface.convert_alpha( pygame.Surface( Imagesh.size ) )
-			self.surface.fill( (0,0,0) )
+			self.surface.fill( pygame.Color(0,0,0,255) )
 			self.dna.render( self.surface )
 			self.fit = None
 		return
@@ -156,7 +169,7 @@ class Screen( object ):
 
 	def __init__( self, resolution = (400,400) ):
 		pygame.init()
-		self.color = (0,0,0)
+		self.color = pygame.Color(0,0,0,255)
 		self.resolution = resolution
 		if "--fullscreen" in sys.argv:
 			self.window = \
