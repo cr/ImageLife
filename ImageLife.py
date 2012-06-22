@@ -39,6 +39,19 @@ class Amino( object):
 	def depth( self ):
 		return self.base[10]
 
+	def wiggle( self, v, s ):
+		#TODO: exclude 1.0
+		w = numpy.random.laplace( loc=v, scale=s )
+		if w>=1.0:
+			w = 2.0-w
+			if w<0.0:
+				w = 0.0
+		elif w<0.0:
+			w = -w
+			if w>=1.0:
+				w = 1.0
+		return w
+
 	def mutate( self ):
 		""" Mutate on property """
 		# TODO: make small variance more likely
@@ -47,28 +60,31 @@ class Amino( object):
 
 		what = randint( 0, 10 )
 		if what  == 0:	# mutate red
-			self.base[0] = random()
+			self.base[0] = self.wiggle( self.base[0], 0.2 )
 		elif what == 1:	# mutate green
-			self.base[1] = random()
+			self.base[1] = self.wiggle( self.base[1], 0.2 )
 		elif what == 2:	# mutate blue
-			self.base[2] = random()
+			self.base[2] = self.wiggle( self.base[2], 0.2 )
 		elif what == 3:	# mutate transparency
 			# make alpha preferably small
 			self.base[3] = numpy.random.beta(5, 3)
 		elif what == 4:	# mutate depth in plane
-			self.base[4] = random()
+			self.base[4] = self.wiggle( self.base[4], 0.2 )
 		elif what == 5:	# mutate center point
-			self.base[5:7] = random(), random()
+			x, y = self.base[5:7]
+			x = self.wiggle( x, 0.2 )
+			y = self.wiggle( x, 0.2 )
+			self.base[5:7] = x, y
 		elif what == 6:	# mutate corner A
-			self.base[7] = random()
+			self.base[7] = self.wiggle( self.base[7], 0.2 )
 		elif what == 7:	# mutate corner B
-			self.base[8] = random()
+			self.base[8] = self.wiggle( self.base[8], 0.2 )
 		elif what == 8:	# mutate corner C
-			self.base[9] = random()
+			self.base[9] = self.wiggle( self.base[9], 0.2 )
 		elif what == 9:	# mutate size
-			self.base[10] = numpy.random.beta(5, 3)
+			self.base[10] = self.wiggle( self.base[10], 0.2 )
 		elif what == 10:	# mutate rotation
-			x = random()
+			x = random()*0.05
 			self.base[7] += x
 			self.base[8] += x
 			self.base[9] += x
@@ -76,7 +92,7 @@ class Amino( object):
 
 	def render( self, surface ):
 		r, g, b, a, z, Mx, My, Aa, Ba, Ca, s = self.base
-		color = pygame.Color( int(256*r), int(256*g), int(256*b), int(256*a) )
+		color = pygame.Color( int(255*r), int(255*g), int(255*b), int(255*a) )
 		pi = 3.14159265
 		Ax, Ay = Mx + s * cos( 2*pi*Aa ), My + s * sin( 2*pi*Aa )
 		Bx, By = Mx + s * cos( 2*pi*Ba ), My + s * sin( 2*pi*Ba )
