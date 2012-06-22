@@ -39,17 +39,20 @@ class Amino( object):
 	def depth( self ):
 		return 1.0/self.base[10]
 
-	def wiggle( self, v, s ):
-		#TODO: exclude 1.0
+	def wiggleround( self, v, s ):
+		"""Make laplace-distributed random variation with width s to value v
+		   and wrap via modulus into [0,1)"""
 		w = numpy.random.laplace( loc=v, scale=s )
+		w %= 1.0
+		return w
+
+	def wiggleback( self, v, s ):
+		"""Make laplace-distributed random variation with width s to value v
+		   and reflect values back into [0,1)"""
+		w = numpy.random.laplace( loc=v, scale=s )
+		w %= 2.0
 		if w>=1.0:
-			w = 2.0-w
-			if w<0.0:
-				w = 0.0
-		elif w<0.0:
-			w = -w
-			if w>=1.0:
-				w = 1.0
+			w -= 1.0
 		return w
 
 	def mutate( self ):
@@ -58,36 +61,34 @@ class Amino( object):
 		#for i in xrange( 0, len( self.base ) ):
 		#	self.base[i] = random()
 
-		what = randint( 0, 10 )
+		what = randint( 0, 9 )
 		if what  == 0:	# mutate red
-			self.base[0] = self.wiggle( self.base[0], 0.1 )
+			self.base[0] = self.wiggleback( self.base[0], 0.2 )
 		elif what == 1:	# mutate green
-			self.base[1] = self.wiggle( self.base[1], 0.1 )
+			self.base[1] = self.wiggleback( self.base[1], 0.1 )
 		elif what == 2:	# mutate blue
-			self.base[2] = self.wiggle( self.base[2], 0.1 )
+			self.base[2] = self.wiggleback( self.base[2], 0.1 )
 		elif what == 3:	# mutate transparency
-			# make alpha preferably small
-			self.base[3] = numpy.random.beta(5, 3)
-		elif what == 4:	# mutate depth in plane
-			self.base[4] = self.wiggle( self.base[4], 0.1 )
-		elif what == 5:	# mutate center point
+			#self.base[3] = numpy.random.beta(5, 3)
+			self.base[2] = self.wiggleback( self.base[3], 0.1 )
+		elif what == 4:	# mutate center point
 			x, y = self.base[5:7]
-			x = self.wiggle( x, 0.1 )
-			y = self.wiggle( x, 0.1 )
+			x = self.wiggleback( x, 0.2 )
+			y = self.wiggleback( x, 0.2 )
 			self.base[5:7] = x, y
-		elif what == 6:	# mutate corner A
-			self.base[7] = self.wiggle( self.base[7], 0.1 )
-		elif what == 7:	# mutate corner B
-			self.base[8] = self.wiggle( self.base[8], 0.1 )
-		elif what == 8:	# mutate corner C
-			self.base[9] = self.wiggle( self.base[9], 0.1 )
-		elif what == 9:	# mutate size
-			self.base[10] = self.wiggle( self.base[10], 0.01 )
-		elif what == 10:	# mutate rotation
-			x = random()*0.05
-			self.base[7] += x
-			self.base[8] += x
-			self.base[9] += x
+		elif what == 5:	# mutate corner angle A
+			self.base[7] = self.wiggleround( self.base[7], 0.1 )
+		elif what == 6:	# mutate corner angle B
+			self.base[8] = self.wiggleround( self.base[8], 0.1 )
+		elif what == 7:	# mutate corner angle C
+			self.base[9] = self.wiggleround( self.base[9], 0.1 )
+		elif what == 8:	# mutate size
+			self.base[10] = self.wiggleback( self.base[10], 0.05 )
+		elif what == 9:	# mutate rotation
+			x = self.wiggleround( 0.0, 0.1 )
+			self.base[7] = ( self.base[7] + x ) % 1.0
+			self.base[8] = ( self.base[8] + x ) % 1.0
+			self.base[9] = ( self.base[9] + x ) % 1.0
 
 
 	def render( self, surface ):
