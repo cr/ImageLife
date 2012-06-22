@@ -32,12 +32,12 @@ class Amino( object):
 			z = random()
 			Mx, My = random(), random()	# center coordinates
 			Aa, Ab, Ac = random(), random(), random() # corner angles
-			s = random()*0.1 # scale
+			s = random()*0.05 # scale
 			self.base = [ r, g, b, a, z, Mx, My, Aa, Ab, Ac, s ]
 		return
 
 	def depth( self ):
-		return self.base[10]
+		return 1.0/self.base[10]
 
 	def wiggle( self, v, s ):
 		#TODO: exclude 1.0
@@ -60,29 +60,29 @@ class Amino( object):
 
 		what = randint( 0, 10 )
 		if what  == 0:	# mutate red
-			self.base[0] = self.wiggle( self.base[0], 0.2 )
+			self.base[0] = self.wiggle( self.base[0], 0.1 )
 		elif what == 1:	# mutate green
-			self.base[1] = self.wiggle( self.base[1], 0.2 )
+			self.base[1] = self.wiggle( self.base[1], 0.1 )
 		elif what == 2:	# mutate blue
-			self.base[2] = self.wiggle( self.base[2], 0.2 )
+			self.base[2] = self.wiggle( self.base[2], 0.1 )
 		elif what == 3:	# mutate transparency
 			# make alpha preferably small
 			self.base[3] = numpy.random.beta(5, 3)
 		elif what == 4:	# mutate depth in plane
-			self.base[4] = self.wiggle( self.base[4], 0.2 )
+			self.base[4] = self.wiggle( self.base[4], 0.1 )
 		elif what == 5:	# mutate center point
 			x, y = self.base[5:7]
-			x = self.wiggle( x, 0.2 )
-			y = self.wiggle( x, 0.2 )
+			x = self.wiggle( x, 0.1 )
+			y = self.wiggle( x, 0.1 )
 			self.base[5:7] = x, y
 		elif what == 6:	# mutate corner A
-			self.base[7] = self.wiggle( self.base[7], 0.2 )
+			self.base[7] = self.wiggle( self.base[7], 0.1 )
 		elif what == 7:	# mutate corner B
-			self.base[8] = self.wiggle( self.base[8], 0.2 )
+			self.base[8] = self.wiggle( self.base[8], 0.1 )
 		elif what == 8:	# mutate corner C
-			self.base[9] = self.wiggle( self.base[9], 0.2 )
+			self.base[9] = self.wiggle( self.base[9], 0.1 )
 		elif what == 9:	# mutate size
-			self.base[10] = self.wiggle( self.base[10], 0.2 )
+			self.base[10] = self.wiggle( self.base[10], 0.01 )
 		elif what == 10:	# mutate rotation
 			x = random()*0.05
 			self.base[7] += x
@@ -92,7 +92,10 @@ class Amino( object):
 
 	def render( self, surface ):
 		r, g, b, a, z, Mx, My, Aa, Ba, Ca, s = self.base
-		color = pygame.Color( int(255*r), int(255*g), int(255*b), int(255*a) )
+		#color = pygame.Color( int(255*r), int(255*g), int(255*b), int(255*a) )
+		#color = pygame.Color( int(255*r), int(255*g), int(255*b), 255 )
+		color = pygame.Color(0,0,0,255)
+		color.hsva = int(360*r), int(100*g), int(100*b), int(100*a)
 		pi = 3.14159265
 		Ax, Ay = Mx + s * cos( 2*pi*Aa ), My + s * sin( 2*pi*Aa )
 		Bx, By = Mx + s * cos( 2*pi*Ba ), My + s * sin( 2*pi*Ba )
@@ -148,7 +151,7 @@ class Imagesh( object ):
 				self.dna = mother.dna * father.dna
 			else:
 				self.dna = DNA()
-			self.surface = pygame.Surface.convert_alpha( pygame.Surface( Imagesh.size ) )
+			self.surface = pygame.Surface.convert( pygame.Surface( Imagesh.size ) )
 			self.surface.fill( pygame.Color(0,0,0,255) )
 			self.dna.render( self.surface )
 			self.fit = None
@@ -164,7 +167,7 @@ class Imagesh( object ):
 
 	def target( self, goddess ):
 		"""Sets target surface for fitness function"""
-		goddess = pygame.Surface.convert_alpha( goddess )
+		goddess = pygame.Surface.convert( goddess )
 		Imagesh.goddesssurface = goddess
 		Imagesh.goddess = Imagesh.convert( self, goddess )
 		Imagesh.size = ( goddess.get_width(), goddess.get_height() )
@@ -174,6 +177,8 @@ class Imagesh( object ):
 		if not self.fit:
 			pygame.surfarray.use_arraytype( "numpy" )
 			#print "INFO:", self.surface.get_shifts(), Imagesh.goddesssurface.get_shifts()
+			assert self.surface.get_shifts() == Imagesh.goddesssurface.get_shifts()
+			assert self.surface.get_shifts() == (8,16,24,0)
 			likeness = Imagesh.convert( self, self.surface )
 			#print "SELF:", selfarray
 			difference = numpy.abs( Imagesh.goddess - likeness )
