@@ -135,6 +135,7 @@ sliderbox = sliderdim[0], sliderdim[1]*6+sliderpad*5
 
 pygame.init()
 screen = pygame.display.set_mode( screendim, 0, 32 )
+pygame.display.set_caption( "PyGame Slider Demo" )
 clock = pygame.time.Clock()
 
 color = pygame.Color( randint( 0,255 ), randint( 0,255 ), randint( 0, 255 ), 255 )
@@ -177,7 +178,6 @@ while True:
 		screen.fill( color )
 		for label, ( slider, pos ) in sliders.items():
 			slider.render( screen, pos )
-		pygame.display.set_caption( "Color = " + str(tuple((color.r, color.g, color.b))) )
 		pygame.display.update()
 
 	clock.tick( 25 )
