@@ -142,8 +142,8 @@ color = pygame.Color( randint( 0,255 ), randint( 0,255 ), randint( 0, 255 ), 255
 x, y = (screendim[0]-sliderbox[0])/2, (screendim[1]-sliderbox[1])/2
 
 # rgb converters
-rgbf = ( lambda x: int(256.0*x) )
-rgbif = ( lambda x: float(x) / 256.0 )
+rgbf = ( lambda x: int(255.0*x) )
+rgbif = ( lambda x: float(x) / 255.0 )
 # hsv converters
 hf = ( lambda x: 359.0*x )
 hif = ( lambda x: x/359.0 )
