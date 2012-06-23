@@ -123,7 +123,7 @@ class Slider( object ):
 		top, bottom = 0, self.height
 		xslider = float( xrel - left ) / self.sliderlen
 		if xslider < 0.0:
-			xlider = 0.0
+			xslider = 0.0
 		elif xslider > 1.0:
 			xslider = 1.0
 		return self.getfunc( xslider )
@@ -145,8 +145,8 @@ x, y = (screendim[0]-sliderbox[0])/2, (screendim[1]-sliderbox[1])/2
 rgbf = ( lambda x: int(256.0*x) )
 rgbif = ( lambda x: float(x) / 256.0 )
 # hsv converters
-hf = ( lambda x: 360.0*x )
-hif = ( lambda x: x/360.0 )
+hf = ( lambda x: 359.0*x )
+hif = ( lambda x: x/359.0 )
 svf = ( lambda x: 100.0*x )
 svif = ( lambda x: x/100.0 )
 
@@ -168,12 +168,10 @@ for label, init, gfunc, sfunc in config:
 	y += sliderdim[1]+sliderpad
 
 updated = True
-
+state = "IDLE"
+clicked = None
+pressedbefore = (False, False, False)
 while True:
-	
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			exit()
 
 	if updated:
 		screen.fill( color )
@@ -184,55 +182,77 @@ while True:
 
 	clock.tick( 25 )
 	
-	click = pygame.mouse.get_pos()
+	mouse = pygame.mouse.get_pos()
+
 	updated = False
-
-	# If the mouse was pressed on the sliders, adjust the color component
-	if pygame.mouse.get_pressed()[0]:
-
-		for label, ( slider, pos ) in sliders.items():
-			if slider.isclicked( click, pos ):
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			exit()
+		elif event.type == MOUSEBUTTONDOWN:
+			pressednow = pygame.mouse.get_pressed()
+			if pressednow[0] and not pressedbefore[0]:
+				for label, ( slider, pos ) in sliders.items():
+					if slider.isclicked( mouse, pos ):
+						state = "MOVING"
+						clicked = label
+						updated = True
+			pressedbefore = pressednow
+		elif event.type == MOUSEBUTTONUP:
+			pressednow = pygame.mouse.get_pressed()
+			if pressedbefore[0] and not pressednow[0]:
+				state = "IDLE"
+				clicked = None
+			pressedbefore = pressednow
+		elif event.type == MOUSEMOTION:
+			if state == "MOVING":
 				updated = True
-				if label == "Red":
-					color.r = slider.clickvalue( click, pos )
-					slider.set( color.r )
-					sliders["Hue"][0].set( color.hsva[0])
-					sliders["Sat."][0].set( color.hsva[1])
-					sliders["Value"][0].set( color.hsva[2])
-				elif label == "Green":
-					color.g = slider.clickvalue( click, pos )
-					slider.set( color.g )
-					sliders["Hue"][0].set( color.hsva[0])
-					sliders["Sat."][0].set( color.hsva[1])
-					sliders["Value"][0].set( color.hsva[2])
-				elif label == "Blue":
-					color.b = slider.clickvalue( click, pos )
-					slider.set( color.b )
-					sliders["Hue"][0].set( color.hsva[0])
-					sliders["Sat."][0].set( color.hsva[1])
-					sliders["Value"][0].set( color.hsva[2])
-				elif label == "Hue":
-					new = slider.clickvalue( click, pos )
-					hsva = ( new, color.hsva[1], color.hsva[2], color.hsva[3] )
-					color.hsva = hsva
-					slider.set( color.hsva[0] )
-					sliders["Red"][0].set( color.r )
-					sliders["Green"][0].set( color.g )
-					sliders["Blue"][0].set( color.b )
-				elif label == "Sat.":
-					new = slider.clickvalue( click, pos )
-					hsva = ( color.hsva[0], new, color.hsva[2], color.hsva[3] )
-					color.hsva = hsva
-					slider.set( color.hsva[1] )
-					sliders["Red"][0].set( color.r )
-					sliders["Green"][0].set( color.g )
-					sliders["Blue"][0].set( color.b )
-				elif label == "Value":
-					new = slider.clickvalue( click, pos )
-					hsva = ( color.hsva[0], color.hsva[1], new, color.hsva[3] )
-					color.hsva = hsva
-					slider.set( color.hsva[2] )
-					sliders["Red"][0].set( color.r )
-					sliders["Green"][0].set( color.g )
-					sliders["Blue"][0].set( color.b )
+
+	if updated:
+		if state == "MOVING":
+			# lazy refactoring
+			label = clicked
+			click = mouse
+			slider, pos = sliders[label]
+			if label == "Red":
+				color.r = slider.clickvalue( click, pos )
+				slider.set( color.r )
+				sliders["Hue"][0].set( color.hsva[0])
+				sliders["Sat."][0].set( color.hsva[1])
+				sliders["Value"][0].set( color.hsva[2])
+			elif label == "Green":
+				color.g = slider.clickvalue( click, pos )
+				slider.set( color.g )
+				sliders["Hue"][0].set( color.hsva[0])
+				sliders["Sat."][0].set( color.hsva[1])
+				sliders["Value"][0].set( color.hsva[2])
+			elif label == "Blue":
+				color.b = slider.clickvalue( click, pos )
+				slider.set( color.b )
+				sliders["Hue"][0].set( color.hsva[0])
+				sliders["Sat."][0].set( color.hsva[1])
+				sliders["Value"][0].set( color.hsva[2])
+			elif label == "Hue":
+				new = slider.clickvalue( click, pos )
+				hsva = ( new, color.hsva[1], color.hsva[2], color.hsva[3] )
+				color.hsva = hsva
+				slider.set( color.hsva[0] )
+				sliders["Red"][0].set( color.r )
+				sliders["Green"][0].set( color.g )
+				sliders["Blue"][0].set( color.b )
+			elif label == "Sat.":
+				new = slider.clickvalue( click, pos )
+				hsva = ( color.hsva[0], new, color.hsva[2], color.hsva[3] )
+				color.hsva = hsva
+				slider.set( color.hsva[1] )
+				sliders["Red"][0].set( color.r )
+				sliders["Green"][0].set( color.g )
+				sliders["Blue"][0].set( color.b )
+			elif label == "Value":
+				new = slider.clickvalue( click, pos )
+				hsva = ( color.hsva[0], color.hsva[1], new, color.hsva[3] )
+				color.hsva = hsva
+				slider.set( color.hsva[2] )
+				sliders["Red"][0].set( color.r )
+				sliders["Green"][0].set( color.g )
+				sliders["Blue"][0].set( color.b )
 
