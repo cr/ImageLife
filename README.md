@@ -2,6 +2,8 @@
 
 *Compare images by genetic compression*
 
+by Christiane Ruetten, cr at 23bit.net
+
 About
 --------
 
