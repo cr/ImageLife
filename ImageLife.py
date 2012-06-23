@@ -23,7 +23,7 @@ class Amino( object):
 	
 	def __init__( self, base = None ):
 		if base:
-			self.base = deepcopy( base )
+			self.base = base
 		else:
 			r = random()
 			g = random()
@@ -63,29 +63,29 @@ class Amino( object):
 
 		what = randint( 0, 9 )
 		if what  == 0:	# mutate red
-			self.base[0] = self.wiggleback( self.base[0], 0.2 )
+			self.base[0] = self.wiggleback( self.base[0], 0.4 )
 		elif what == 1:	# mutate green
-			self.base[1] = self.wiggleback( self.base[1], 0.1 )
+			self.base[1] = self.wiggleback( self.base[1], 0.4 )
 		elif what == 2:	# mutate blue
-			self.base[2] = self.wiggleback( self.base[2], 0.1 )
+			self.base[2] = self.wiggleback( self.base[2], 0.4 )
 		elif what == 3:	# mutate transparency
 			#self.base[3] = numpy.random.beta(5, 3)
-			self.base[2] = self.wiggleback( self.base[3], 0.1 )
+			self.base[2] = self.wiggleback( self.base[3], 0.4 )
 		elif what == 4:	# mutate center point
 			x, y = self.base[5:7]
 			x = self.wiggleback( x, 0.2 )
 			y = self.wiggleback( x, 0.2 )
 			self.base[5:7] = x, y
 		elif what == 5:	# mutate corner angle A
-			self.base[7] = self.wiggleround( self.base[7], 0.1 )
+			self.base[7] = self.wiggleround( self.base[7], 0.3 )
 		elif what == 6:	# mutate corner angle B
-			self.base[8] = self.wiggleround( self.base[8], 0.1 )
+			self.base[8] = self.wiggleround( self.base[8], 0.3 )
 		elif what == 7:	# mutate corner angle C
-			self.base[9] = self.wiggleround( self.base[9], 0.1 )
+			self.base[9] = self.wiggleround( self.base[9], 0.3 )
 		elif what == 8:	# mutate size
-			self.base[10] = self.wiggleback( self.base[10], 0.05 )
+			self.base[10] = self.wiggleback( self.base[10], 0.2 )
 		elif what == 9:	# mutate rotation
-			x = self.wiggleround( 0.0, 0.1 )
+			x = self.wiggleround( 0.0, 0.2 )
 			self.base[7] = ( self.base[7] + x ) % 1.0
 			self.base[8] = ( self.base[8] + x ) % 1.0
 			self.base[9] = ( self.base[9] + x ) % 1.0
@@ -106,14 +106,15 @@ class Amino( object):
 		pygame.gfxdraw.filled_trigon( surface, Ax, Ay, Bx, By, Cx, Cy, color )
 
 class DNA( object ):
-	"""Class reppresenting a DNA string, consisting of Aminos"""
+	"""Class representing a DNA string, consisting of Aminos"""
 		
 	def __init__( self, genome = None ):
 		if genome:
 			self.genome = deepcopy( genome )
+			#self.genome = genome
 		else:
 			self.genome = []
-			for gene in xrange( 100 ):
+			for gene in xrange( 200 ):
 					self.genome.append( Amino() )
 
 	def mutate( self ):
@@ -126,6 +127,8 @@ class DNA( object ):
 		if randint( 0, 1 ) == 0:
 			father, mother = mother, father
 		child = DNA( father.genome[:crossover] + mother.genome[crossover:] )
+		child.mutate()
+		child.mutate()
 		child.mutate()
 		return child
 
@@ -180,6 +183,7 @@ class Imagesh( object ):
 			#print "INFO:", self.surface.get_shifts(), Imagesh.goddesssurface.get_shifts()
 			assert self.surface.get_shifts() == Imagesh.goddesssurface.get_shifts()
 			assert self.surface.get_shifts() == (8,16,24,0)
+			assert self.surface.get_shifts()[3] == (0)
 			likeness = Imagesh.convert( self, self.surface )
 			#print "SELF:", selfarray
 			difference = numpy.abs( Imagesh.goddess - likeness )
@@ -194,8 +198,7 @@ class Screen( object ):
 		self.color = pygame.Color(0,0,0,255)
 		self.resolution = resolution
 		if "--fullscreen" in sys.argv:
-			self.window = \
-			    pygame.display.set_mode(self.resolution, pygame.FULLSCREEN) 
+			self.window = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN) 
 		else:
 			self.window = pygame.display.set_mode(self.resolution)
 		pygame.display.set_caption( "ImageLife" ) 
@@ -243,8 +246,31 @@ def main():
 	tmp = Imagesh()
 	Imagesh.target( tmp, goddess )
 
+	# most simple iteration
+	#mom = Imagesh()
+	#start = time.time()
+	#prev = start
+	#done = False
+	#generation = 0
+	#while not done:
+#		generation += 1
+#		child = Imagesh( mom, mom )
+#		if child.fitness() >= mom.fitness():
+#			mom = child
+#		now = time.time()
+#		if now-prev > 0.2:
+#			prev = now
+#			screen.events()
+#			screen.clear()
+#			screen.blit( mom.surface )
+#			#screen.blit( goddess )
+#			screen.update()
+#			#screen.sync( 60 )
+#		print generation, now-start, mom.fitness(), child.fitness()
+
+
 	# Play god, create population
-	populationsize = 12
+	populationsize = 40
 	population = []
 	for i in xrange( 0, populationsize ):
 		population.append( Imagesh() )
@@ -258,7 +284,7 @@ def main():
 	while not done:
 		generation += 1
 		# The fittest shall procreate
-		for i in xrange( 0, len( population )/4 ):
+		for i in xrange( 0, len( population )/5 ):
 			#Perhaps monogamy is better ofter all?
 			mother = int( (1.0-numpy.random.beta(5, 1)) * len( population ) )
 			father = mother
@@ -284,6 +310,12 @@ def main():
 
 		print generation, now-start, population[0].fitness(), population[1].fitness(), population[2].fitness(), population[-1].fitness()
 		done = population[0].fitness() < 10
+
+#import cProfile
+#cProfile.run( 'main()', '/tmp/fooprof' )
+#import pstats
+#p = pstats.Stats( '/tmp/fooprof' )
+#p.sort_stats( 'cumulative' ).print_stats( 40 )
 
 if __name__ == "__main__":
 	main()
