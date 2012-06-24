@@ -215,44 +215,31 @@ while True:
 			slider, pos = sliders[label]
 			if label == "Red":
 				color.r = slider.clickvalue( click, pos )
-				slider.set( color.r )
-				sliders["Hue"][0].set( color.hsva[0])
-				sliders["Sat."][0].set( color.hsva[1])
-				sliders["Value"][0].set( color.hsva[2])
 			elif label == "Green":
 				color.g = slider.clickvalue( click, pos )
-				slider.set( color.g )
-				sliders["Hue"][0].set( color.hsva[0])
-				sliders["Sat."][0].set( color.hsva[1])
-				sliders["Value"][0].set( color.hsva[2])
 			elif label == "Blue":
 				color.b = slider.clickvalue( click, pos )
-				slider.set( color.b )
-				sliders["Hue"][0].set( color.hsva[0])
-				sliders["Sat."][0].set( color.hsva[1])
-				sliders["Value"][0].set( color.hsva[2])
 			elif label == "Hue":
 				new = slider.clickvalue( click, pos )
 				hsva = ( new, color.hsva[1], color.hsva[2], color.hsva[3] )
+				#print "DEBUG:", hsva
 				color.hsva = hsva
-				slider.set( color.hsva[0] )
-				sliders["Red"][0].set( color.r )
-				sliders["Green"][0].set( color.g )
-				sliders["Blue"][0].set( color.b )
 			elif label == "Sat.":
 				new = slider.clickvalue( click, pos )
 				hsva = ( color.hsva[0], new, color.hsva[2], color.hsva[3] )
+				#print "DEBUG:", hsva
 				color.hsva = hsva
 				slider.set( color.hsva[1] )
-				sliders["Red"][0].set( color.r )
-				sliders["Green"][0].set( color.g )
-				sliders["Blue"][0].set( color.b )
 			elif label == "Value":
 				new = slider.clickvalue( click, pos )
 				hsva = ( color.hsva[0], color.hsva[1], new, color.hsva[3] )
+				#print "DEBUG:", hsva
 				color.hsva = hsva
-				slider.set( color.hsva[2] )
-				sliders["Red"][0].set( color.r )
-				sliders["Green"][0].set( color.g )
-				sliders["Blue"][0].set( color.b )
+			# update sliders
+			sliders["Red"][0].set( color.r )
+			sliders["Green"][0].set( color.g )
+			sliders["Blue"][0].set( color.b )
+			sliders["Hue"][0].set( color.hsva[0])
+			sliders["Sat."][0].set( color.hsva[1])
+			sliders["Value"][0].set( color.hsva[2])
 
