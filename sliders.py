@@ -4,7 +4,7 @@
 import pygame
 from pygame.locals import *
 from pygame import gfxdraw
-from sys import exit
+import sys
 from random import randint
 
 
@@ -134,7 +134,17 @@ sliderpad = 5
 sliderbox = sliderdim[0], sliderdim[1]*6+sliderpad*5 
 
 pygame.init()
-screen = pygame.display.set_mode( screendim, 0, 32 )
+
+fs = False
+if pygame.display.list_modes():
+	fs = True
+	screendim = pygame.display.list_modes()[0]
+
+if fs:
+	screen = pygame.display.set_mode( screendim, pygame.FULLSCREEN, 32 )
+else:
+	screen = pygame.display.set_mode( screendim, 0, 32 )
+
 pygame.display.set_caption( "PyGame Slider Demo" )
 clock = pygame.time.Clock()
 
@@ -187,7 +197,12 @@ while True:
 	updated = False
 	for event in pygame.event.get():
 		if event.type == QUIT:
-			exit()
+			sys.exit()
+		elif event.type == KEYDOWN and event.key == K_ESCAPE:
+			sys.exit()
+		elif event.type == KEYDOWN and event.key == K_f:
+			if fs:
+				pygame.display.toggle_fullscreen()
 		elif event.type == MOUSEBUTTONDOWN:
 			pressednow = pygame.mouse.get_pressed()
 			if pressednow[0] and not pressedbefore[0]:
